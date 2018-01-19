@@ -19,7 +19,7 @@ def get_tokens():
 	with open('corpus.txt', 'r') as shake:
 		text = shake.read();
 		lower = text.lower();
-		kill_punctuation = lowers.translate(None, string.punctuation); 
+		kill_punctuation = lower.translate(None, string.punctuation); 
 		tokens = nltk.word_tokenize(kill_punctuation); 
 		return tokens; 
 
