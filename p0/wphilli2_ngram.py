@@ -10,6 +10,7 @@ from collections import Counter;
 import random;
 import nltk; 
 import string; 
+nltk.download(); 
 
 # ---------------------------------------- #
 # --- Section 1 - Function Defintiions --- #
