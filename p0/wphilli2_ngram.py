@@ -30,6 +30,9 @@ import string;
 # --- Section 2 - Function Defintiions --- #
 # ---------------------------------------- #
 
+def find_ngrams(input_list, n):
+	return zip(*[input_list[i:] for i in range(n)]); 
+
 def get_ngrams(tokens, n=1):
 	moveToken = lambda i: (el for j, el in enumerate(tokens) if j>=i); 
 	movedTokens = (moveToken(i) for i in range(n));  
@@ -51,8 +54,6 @@ def get_tokens():
 	#These next two aren't contained in the string constant
 	deletechars.insert(0, '“'); 
 	deletechars.insert(0, '”')
-	#print deletechars;  
-
 	with open('corpus.txt', 'r') as shake:
 		text = shake.read();
 		lower = text.lower();
@@ -69,13 +70,12 @@ def get_tokens():
 
 tokens = get_tokens();
 total_count = len(tokens); 
-#print(str(total_count) + '\n');  
-#count = Counter(tokens); 
-#print count.most_common(10); 
 
 # ------------------------ #
 # --- Section 4 Unigram--- # 
 # ------------------------ #
+
+print('\n******* Unigram Section Begin *********\n')
 
 unigram = list(tokens); 
 unigram_cnts = Counter();
@@ -83,12 +83,10 @@ unigram_cnts = Counter();
 #figure out the unigram counts 
 for word in unigram:
 	unigram_cnts[word] += 1;
+
 #switch to frequency
 for word in unigram_cnts:
 	unigram_cnts[word] /= float(total_count);  
-#print unigram;
-#print('Unigram Data\n'); 
-#print unigram_cnts.most_common(25); 
 
 #make a chain of words
 text_from_unigram = []; 
@@ -102,25 +100,32 @@ for _ in range(100):
 		if accumulator >= r:
 			text_from_unigram.append(word); 
 			break; 
+
+print('\n******* Unigram Random Generator Begin *********\n')
+
 print ' '.join(text_from_unigram); 
+
+print('\n******* Unigram Random Generator Stop *********\n')
+
+print('\n******* Unigram Section Stop *********\n')
 
 # ----------------------- #
 # --- Section 5 Bigram--- # 
 # ----------------------- #
 
+print('\n******* Bigram Section Begin *********\n')
+
 bigram = list(range_ngrams(tokens, ngramRange=(2, 3))); 
-bigram_cnts = Counter(); 
 
-#figure out the bigram counts
-for word in bigram:
-	bigram_cnts[word] += 1; 
-#print bigram; 
-#print('Bigram Data\n'); 
-#print bigram_cnts.most_common(25); 
-
+#make a bigram model
 bi_model = defaultdict(lambda: defaultdict(lambda: 0)); 
 for w1, w2 in bigram:
 	bi_model[w1][w2] += 1;
+
+print(bi_model.keys()); 
+print(bi_model.values()); 
+
+print('Test of "I [followed by] Will" with bigram model: ' + str(bi_model["i"]["will"])); 
 
 #switch to freqs
 for w1 in bi_model:
@@ -128,28 +133,46 @@ for w1 in bi_model:
 	for w2 in bi_model[w1]:
 		bi_model[w1][w2] /= total_count_bi; 
 
-print bi_model["i"]["will"]; 
+print('Test of "I [followed by] Will" with bigram model: ' + str(bi_model["i"]["will"]))
+
+# text_from_bigram = ['i']; 
+# done = False; 
+# cnt = 0; 
+
+# while not done:
+# 	r = random.random();
+# 	accumulator =.0; 
+# 	#I want the last element of what's being stored in the list, and I want the key out of the model
+# 	for word in bi_model[tuple(text_from_bigram[-1:])].keys():
+# 		accumulator += bi_model[tuple(text_from_bigram[-1:])][word]; 
+#  		print('Value of Random is: ' + str(r) + '\n'); 
+# 		print('Accumulator is: ' + str(accumulator) + '\n'); 
+
+# 		if accumulator >= r:
+# 			text_from_bigram.append(word); 
+# 			cnt + 1; 
+# 			if cnt > 99:
+# 				done = True; 
+# 			break; 
+
+# print ' '.join([text for text in text_from_trigram if text]); 
+
+print('\n******* Bigram Section Stop *********\n')
 
 # ------------------------ #
 # --- Section 6 Trigram--- # 
 # ------------------------ #
 
-trigram = list(range_ngrams(tokens, ngramRange=(3, 4))); 
-trigram_cnts = Counter(); 
+print('\n******* Trigram Section Begin *********\n')
 
-#figure out the bigram counts
-for word in trigram:
-	trigram_cnts[word] += 1; 
-#print trigram;
-#print('Trigram Data\n'); 
-#print trigram_cnts.most_common(25); 
+trigram = list(range_ngrams(tokens, ngramRange=(3, 4))); 
 
 #make a trigram model
 tri_model = defaultdict(lambda: defaultdict(lambda: 0)); 
 for w1, w2, w3 in trigram:
 	tri_model[(w1, w2)][w3] += 1; 
 
-#print tri_model["i", "will"]["not"];
+print('Test of "I Will [followed by] Not" with trigram model: ' + str(tri_model["i", "will"]["not"])); 
 
 #switch to freqs
 for w1_w2 in tri_model:
@@ -157,26 +180,28 @@ for w1_w2 in tri_model:
 	for w3 in tri_model[w1_w2]:
 		tri_model[w1_w2][w3] /= total_count_tri; 
 
-print tri_model["i", "will"]["not"];
+print('Test of "I Will [followed by] Not" with trigram model: ' + str(tri_model["i", "will"]["not"])); 
 
-
-
-# text_from_trigram = [None, None]; 
+# text_from_trigram = ['i', 'will']; 
 # done = False; 
 
-# #while not done:
-# for _ in range(100):
+# while not done:
 # 	r = random.random(); 
 # 	accumulator =.0; 
 
 # 	for word in tri_model[tuple(text_from_trigram[-2:])].keys():
-# 		accumulator +=tri_model[tuple(text_from_trigram[-2:])][word]; 
+# 		accumulator += tri_model[tuple(text_from_trigram[-2:])][word]; 
+ 
+# 		print('Value of Random is: ' + str(r) + '\n'); 
+# 		print('Accumulator is: ' + str(accumulator) + '\n'); 
 
 # 		if accumulator >= r:
 # 			text_from_trigram.append(word); 
 # 			break; 
 
-# 	#if text_from_trigram[-2] == [None, None]:
-# 		#done = True; 
+# 	if text_from_trigram[-2:] == [None, None]:
+# 		done = True; 
 
 # print ' '.join([text for text in text_from_trigram if text]); 
+
+print('\n******* Trigram Section Stop *********\n')
