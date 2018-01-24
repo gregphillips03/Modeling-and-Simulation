@@ -39,12 +39,65 @@ def get_tokens():
 	with open('corpus.txt', 'r') as shake:
 		text = shake.read();
 		lower = text.lower();
-		kill_punctuation = lower; 
+		annoyed = lower.replace('\\xe2\\x80\\x94', ''); 
+		kill_punctuation = annoyed; 
 		for i in deletechars:
 			kill_punctuation = kill_punctuation.replace(i, ''); 
 		kill_digits = kill_punctuation.translate(None, string.digits);
 		tokens = kill_digits.split(); 
 		return tokens; 
+
+class Chain:
+	#constructor to initiate a memory slot for a dictionary
+	def __init__(self):
+		self.memory = {};
+
+	#check this object for the key value pair
+	def _learn_key(self, key, value):
+		if key not in self.memory:
+			self.memory[key] = [];
+		self.memory[key].append(value);
+
+	#bigrams
+	def learn_bi(self, tokens):
+		bigrams = [(tokens[i], tokens[i + 1]) for i in range(0, len(tokens) - 1)];
+		for bigram in bigrams:
+			self._learn_key(bigram[0], bigram[1]);
+
+	#trigrams
+	def learn_tri(self, tokens):
+		trigrams = [(tokens[i], tokens[i + 1], tokens[i + 2]) for i in range(0, len(tokens) - 2)]; 
+		for trigram in trigrams:
+			self._learn_key(trigram[0], trigram[1]);
+
+	#quadgrams
+	def learn_quad(self, tokens):
+		quadgrams = [(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3]) for i in range(0, len(tokens) - 3)];              
+		for quadgram in quadgrams:
+			self._learn_key(quadgram[0], quadgram[1]); 
+
+	#quingrams
+	def learn_quin(self, tokens):
+		quingrams = [(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3], tokens[i+4]) for i in range(0, len(tokens) - 4)];
+		for quingram in quingrams:
+			self._learn_key(quingram[0], quingram[1]); 
+
+	#simple way to slide across the dictionary in memory
+	def _next(self, current_state):
+		next_poss = self.memory.get(current_state);
+
+		if not next_poss:
+			next_poss = self.memory.keys();
+
+		return random.sample(next_poss, 1)[0];
+
+	#generate a chain of words
+	def my_markov(self, amount, state=''):
+		if not amount:
+			return state;
+
+		next_word = self._next(state);
+		return state + ' ' + self.my_markov(amount - 1, next_word);
 
 # ------------------------------- #
 # --- Section 3 - Exploratory --- # 
@@ -58,6 +111,7 @@ total_count = len(tokens);
 # ------------------------ #
 
 unigrams = {};
+
 for word in tokens:
 	if word in unigrams:
 		unigrams[word] += 1; 
@@ -83,74 +137,40 @@ for _ in range(100):
 
 print('Unigram Build: \n')
 print ' '.join(out);
+print('\n'); 
 
 # ----------------------- #
 # --- Section 5 Bigram--- # 
 # ----------------------- #
 
-bigrams = {}; 
-prev = 'X'; 
-
-for word in tokens:
-	bigram = prev + ' ' + word; 
-	if bigram in bigrams:
-		bigrams[bigram] += 1; 
-	else:
-		bigrams[bigram] = 1; 
-	prev = word;  
-
-#switch to frequency
-for pair in bigrams:
-	bigrams[pair] /= float(total_count); 
-
-#make a chain of words
-out = []; 
-for _ in range(100):
-	r = random.random();
-	accumulator = .0; 
-
-	for word, freq in bigrams.iteritems():
-		accumulator += freq; 
-
-		if accumulator >= r:
-			out.append(word); 
-			break; 
-
-print('Bigram Build: \n')
-print ' '.join(out);
+b = Chain(); 
+b.learn_bi(tokens);
+print('Bigram Build: \n') 
+print(b.my_markov(amount=100) + '\n'); 
 
 # ------------------------ #
 # --- Section 6 Trigram--- # 
 # ------------------------ #
 
-trigrams = {}; 
-prev1 = 'XX'; 
-prev2 = 'X'
+t = Chain(); 
+t.learn_tri(tokens); 
+print('Trigram Build: \n'); 
+print(t.my_markov(amount=100) + '\n'); 
 
-for word in tokens:
-	trigram = prev1 + ' ' + prev2 + ' ' + word; 
-	if trigram in trigrams:
-		trigrams[trigram] += 1; 
-	else:
-		trigrams[trigram] = 1; 
-	prev1 = prev2; 
-	prev2 = word; 
+# ------------------------ #
+# --- Section 7 Quadgram--- # 
+# ------------------------ #
 
-#switch to frequency
-for triplet in trigrams:
-	trigrams[triplet] /= float(total_count); 
+qua = Chain(); 
+qua.learn_quad(tokens); 
+print('Quadgram Build: \n'); 
+print(qua.my_markov(amount=200) + '\n');
 
-#make a chain of words
-out = []; 
-for _ in range(100):
-	r = random.random();
-	accumulator = .0; 
+# ------------------------ #
+# --- Section 8 Quingram--- # 
+# ------------------------ #
 
-	for word, freq in trigrams.iteritems():
-		accumulator += freq; 
-
-		if accumulator >= r:
-			out.append(word); 
-			break; 
-print('Trigram Build: \n')
-print ' '.join(out);
+qui = Chain(); 
+qui.learn_quin(tokens); 
+print('Quingram Build: \n'); 
+print(qui.my_markov(amount=200) + '\n'); 
