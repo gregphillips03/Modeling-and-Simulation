@@ -23,31 +23,18 @@ UTF-8 encoding is necessary to get rid of pesky 'weird' Shakespearean'istical ch
 import random; 
 import string; 
 import sys; 
+import re; 
 
 # ---------------------------------------- #
 # --- Section 2 - Function Defintiions --- #
 # ---------------------------------------- # 
 
 def get_tokens(path):
-	#set up stuff to kill the weird punctuation characters 
-	#that aren't contained in the string constants
-	deletechars =[]; 
-	for c in string.punctuation:
-		deletechars += [c];
-	#These next two aren't contained in the string constant
-	deletechars.insert(0, '“'); 
-	deletechars.insert(0, '”')
 	with open(path, 'r') as shake:
 		text = shake.read();
 		lower = text.lower();
-		annoyed = lower.replace('\\xe2\\x80\\x94', '');
-		annoyed2 = annoyed.replace('\\xe2\\x80\\x98', '');
-		annoyed3 = annoyed2.replace('—', '');   
-		kill_punctuation = annoyed3; 
-		for i in deletechars:
-			kill_punctuation = kill_punctuation.replace(i, ''); 
-		kill_digits = kill_punctuation.translate(None, string.digits);
-		tokens = kill_digits.split(); 
+		cleanse = re.sub('[^a-z \n]+', '', lower)
+		tokens = cleanse.split(); 
 		return tokens; 
 
 class Chain:
