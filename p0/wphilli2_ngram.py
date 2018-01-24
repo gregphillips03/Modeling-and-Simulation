@@ -232,7 +232,7 @@ def p0(path):
 	print(octa.my_markov(amount=100) + '\n');
 
 	# ------------------------- #
-	# --- Section 10 Nonagram--- # 
+	# --- Section 11 Nonagram--- # 
 	# ------------------------- #
 
 	nona = Chain(); 
