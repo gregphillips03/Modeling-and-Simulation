@@ -40,8 +40,10 @@ def get_tokens(path):
 	with open(path, 'r') as shake:
 		text = shake.read();
 		lower = text.lower();
-		annoyed = lower.replace('\\xe2\\x80\\x94', ''); 
-		kill_punctuation = annoyed; 
+		annoyed = lower.replace('\\xe2\\x80\\x94', '');
+		annoyed2 = annoyed.replace('\\xE2\\x80\\x98', '');
+		annoyed3 = annoyed2.replace('—', '');   
+		kill_punctuation = annoyed3; 
 		for i in deletechars:
 			kill_punctuation = kill_punctuation.replace(i, ''); 
 		kill_digits = kill_punctuation.translate(None, string.digits);
@@ -100,6 +102,12 @@ class Chain:
 		octagrams = [(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3], tokens[i+4], tokens[i+5], tokens[i+6], tokens[i+7]) for i in range(0, len(tokens) - 7)];
 		for octagram in octagrams:
 			self._learn_key(octagram[6], octagram[7]);
+
+	#nonagrams
+	def learn_nona(self, tokens):
+		nonagrams = [(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3], tokens[i+4], tokens[i+5], tokens[i+6], tokens[i+7], tokens[i+8]) for i in range(0, len(tokens) - 8)];
+		for nonagram in nonagrams:
+			self._learn_key(nonagram[7], nonagram[8]);
 
 	#simple way to slide across the dictionary in memory
 	def _next(self, current_state):
@@ -221,7 +229,16 @@ def p0(path):
 	octa = Chain(); 
 	octa.learn_octa(tokens); 
 	print('Octagram Build: \n'); 
-	print(octa.my_markov(amount=100) + '\n'); 
+	print(octa.my_markov(amount=100) + '\n');
+
+	# ------------------------- #
+	# --- Section 10 Nonagram--- # 
+	# ------------------------- #
+
+	nona = Chain(); 
+	nona.learn_nona(tokens); 
+	print('Nonagram Build: \n'); 
+	print(nona.my_markov(amount=100) + '\n'); 
 
 if __name__ == "__main__":
 	try:
