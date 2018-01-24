@@ -22,12 +22,13 @@ UTF-8 encoding is necessary to get rid of pesky 'weird' Shakespearean'istical ch
 
 import random; 
 import string; 
+import sys; 
 
 # ---------------------------------------- #
 # --- Section 2 - Function Defintiions --- #
 # ---------------------------------------- # 
 
-def get_tokens():
+def get_tokens(path):
 	#set up stuff to kill the weird punctuation characters 
 	#that aren't contained in the string constants
 	deletechars =[]; 
@@ -36,7 +37,7 @@ def get_tokens():
 	#These next two aren't contained in the string constant
 	deletechars.insert(0, '“'); 
 	deletechars.insert(0, '”')
-	with open('corpus.txt', 'r') as shake:
+	with open(path, 'r') as shake:
 		text = shake.read();
 		lower = text.lower();
 		annoyed = lower.replace('\\xe2\\x80\\x94', ''); 
@@ -68,19 +69,37 @@ class Chain:
 	def learn_tri(self, tokens):
 		trigrams = [(tokens[i], tokens[i + 1], tokens[i + 2]) for i in range(0, len(tokens) - 2)]; 
 		for trigram in trigrams:
-			self._learn_key(trigram[0], trigram[1]);
+			self._learn_key(trigram[1], trigram[2]);
 
 	#quadgrams
 	def learn_quad(self, tokens):
 		quadgrams = [(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3]) for i in range(0, len(tokens) - 3)];              
 		for quadgram in quadgrams:
-			self._learn_key(quadgram[0], quadgram[1]); 
+			self._learn_key(quadgram[2], quadgram[3]); 
 
 	#quingrams
 	def learn_quin(self, tokens):
 		quingrams = [(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3], tokens[i+4]) for i in range(0, len(tokens) - 4)];
 		for quingram in quingrams:
-			self._learn_key(quingram[0], quingram[1]); 
+			self._learn_key(quingram[3], quingram[4]);
+
+	#hexagrams
+	def learn_hexa(self, tokens):
+		hexagrams = [(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3], tokens[i+4], tokens[i+5]) for i in range(0, len(tokens) - 5)];
+		for hexagram in hexagrams:
+			self._learn_key(hexagram[4], hexagram[5]);
+
+	#septagrams
+	def learn_septa(self, tokens):
+		septagrams = [(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3], tokens[i+4], tokens[i+5], tokens[i+6]) for i in range(0, len(tokens) - 6)];
+		for septagram in septagrams:
+			self._learn_key(septagram[5], septagram[6]); 
+
+	#octagrams
+	def learn_octa(self, tokens):
+		octagrams = [(tokens[i], tokens[i + 1], tokens[i + 2], tokens[i + 3], tokens[i+4], tokens[i+5], tokens[i+6], tokens[i+7]) for i in range(0, len(tokens) - 7)];
+		for octagram in octagrams:
+			self._learn_key(octagram[6], octagram[7]);
 
 	#simple way to slide across the dictionary in memory
 	def _next(self, current_state):
@@ -99,78 +118,117 @@ class Chain:
 		next_word = self._next(state);
 		return state + ' ' + self.my_markov(amount - 1, next_word);
 
-# ------------------------------- #
-# --- Section 3 - Exploratory --- # 
-# ------------------------------- #
-
-tokens = get_tokens();
-total_count = len(tokens); 
-
 # ------------------------ #
-# --- Section 4 Unigram--- # 
+# --- Section 3 - Main --- # 
 # ------------------------ #
 
-unigrams = {};
+def p0(path):
+	print(path); 
+	tokens = get_tokens(path);
+	total_count = len(tokens); 
 
-for word in tokens:
-	if word in unigrams:
-		unigrams[word] += 1; 
-	else:
-		unigrams[word] = 1; 
+	# ------------------------ #
+	# --- Section 4 Unigram--- # 
+	# ------------------------ #
 
-#switch to frequency
-for word in unigrams:
-	unigrams[word] /= float(total_count); 
+	unigrams = {};
 
-#make a chain of words
-out = []; 
-for _ in range(100):
-	r = random.random();
-	accumulator = .0; 
+	for word in tokens:
+		if word in unigrams:
+			unigrams[word] += 1; 
+		else:
+			unigrams[word] = 1; 
 
-	for word, freq in unigrams.iteritems():
-		accumulator += freq; 
+	#switch to frequency
+	for word in unigrams:
+		unigrams[word] /= float(total_count); 
 
-		if accumulator >= r:
-			out.append(word); 
-			break; 
+	#make a chain of words
+	out = []; 
+	for _ in range(100):
+		r = random.random();
+		accumulator = .0; 
 
-print('Unigram Build: \n')
-print ' '.join(out);
-print('\n'); 
+		for word, freq in unigrams.iteritems():
+			accumulator += freq; 
 
-# ----------------------- #
-# --- Section 5 Bigram--- # 
-# ----------------------- #
+			if accumulator >= r:
+				out.append(word); 
+				break; 
 
-b = Chain(); 
-b.learn_bi(tokens);
-print('Bigram Build: \n') 
-print(b.my_markov(amount=100) + '\n'); 
+	print('Unigram Build: \n')
+	print ' '.join(out);
+	print('\n'); 
 
-# ------------------------ #
-# --- Section 6 Trigram--- # 
-# ------------------------ #
+	# ----------------------- #
+	# --- Section 5 Bigram--- # 
+	# ----------------------- #
 
-t = Chain(); 
-t.learn_tri(tokens); 
-print('Trigram Build: \n'); 
-print(t.my_markov(amount=100) + '\n'); 
+	b = Chain(); 
+	b.learn_bi(tokens);
+	print('Bigram Build: \n') 
+	print(b.my_markov(amount=100) + '\n'); 
 
-# ------------------------ #
-# --- Section 7 Quadgram--- # 
-# ------------------------ #
+	# ------------------------ #
+	# --- Section 6 Trigram--- # 
+	# ------------------------ #
 
-qua = Chain(); 
-qua.learn_quad(tokens); 
-print('Quadgram Build: \n'); 
-print(qua.my_markov(amount=200) + '\n');
+	t = Chain(); 
+	t.learn_tri(tokens); 
+	print('Trigram Build: \n'); 
+	print(t.my_markov(amount=100) + '\n'); 
 
-# ------------------------ #
-# --- Section 8 Quingram--- # 
-# ------------------------ #
+	# ------------------------- #
+	# --- Section 7 Quadgram--- # 
+	# ------------------------- #
 
-qui = Chain(); 
-qui.learn_quin(tokens); 
-print('Quingram Build: \n'); 
-print(qui.my_markov(amount=200) + '\n'); 
+	qua = Chain(); 
+	qua.learn_quad(tokens); 
+	print('Quadgram Build: \n'); 
+	print(qua.my_markov(amount=100) + '\n');
+
+	# ------------------------- #
+	# --- Section 8 Quingram--- # 
+	# ------------------------- #
+
+	qui = Chain(); 
+	qui.learn_quin(tokens); 
+	print('Quingram Build: \n'); 
+	print(qui.my_markov(amount=100) + '\n');
+
+	# ------------------------- #
+	# --- Section 8 Hexagram--- # 
+	# ------------------------- #
+
+	hexa = Chain(); 
+	hexa.learn_hexa(tokens); 
+	print('Hexagram Build: \n'); 
+	print(hexa.my_markov(amount=100) + '\n');
+
+	# ------------------------- #
+	# --- Section 9 Septagram--- # 
+	# ------------------------- #
+
+	septa = Chain(); 
+	septa.learn_septa(tokens); 
+	print('Septagram Build: \n'); 
+	print(septa.my_markov(amount=100) + '\n');
+
+	# ------------------------- #
+	# --- Section 10 Octagram--- # 
+	# ------------------------- #
+
+	octa = Chain(); 
+	octa.learn_octa(tokens); 
+	print('Octagram Build: \n'); 
+	print(octa.my_markov(amount=100) + '\n'); 
+
+if __name__ == "__main__":
+	try:
+		arg1 = sys.argv[1];
+	except IndexError:
+		print "Usage: wphilli2_ngram.py <arg1>"; 
+		sys.exit(1);
+
+    # start the program
+p0(arg1); 
