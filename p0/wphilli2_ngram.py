@@ -41,7 +41,7 @@ def get_tokens(path):
 		text = shake.read();
 		lower = text.lower();
 		annoyed = lower.replace('\\xe2\\x80\\x94', '');
-		annoyed2 = annoyed.replace('\\xE2\\x80\\x98', '');
+		annoyed2 = annoyed.replace('\\xe2\\x80\\x98', '');
 		annoyed3 = annoyed2.replace('—', '');   
 		kill_punctuation = annoyed3; 
 		for i in deletechars:
