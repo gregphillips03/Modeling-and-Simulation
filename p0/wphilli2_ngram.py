@@ -3,7 +3,7 @@
 
 # p0 ngram
 # William (Greg) Phillips
-# Ready for Review
+# Finalized
 
 # ------------------------ #
 # --- Section 0 - Meta --- #
