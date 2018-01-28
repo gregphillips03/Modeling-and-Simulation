@@ -120,7 +120,8 @@ class Chain:
 def p0(path):
 	print(path); 
 	tokens = get_tokens(path);
-	total_count = len(tokens); 
+	total_count = len(tokens);
+	print(total_count);  
 
 	# ------------------------ #
 	# --- Section 4 Unigram--- # 
