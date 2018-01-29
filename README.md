@@ -5,6 +5,7 @@
 <hr>
 
 <br>
-Purpose: This repository houses modeling and simulation code for simulating system behavior. 
+Purpose: This repository houses modeling and simulation code for simulating system behavior.</br>
+<br> 
 Author: Greg Phillips</br>   
 <hr>
