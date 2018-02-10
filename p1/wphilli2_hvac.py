@@ -15,13 +15,20 @@ outside_temp = 25*np.sin(2*math.pi/24*time_values) + 20;
 normal_day_heat = np.concatenate([np.repeat(68, int(8 / delta_t)),
                           np.repeat(74, int(8 / delta_t)), 
                           np.repeat(70, int(8 / delta_t))]); 
+#heater thermostat settings for vacation times
+vacay_day_heat = np.concatenate([np.repeat(55, int(24 / delta_t))]); 
 #air conditioner thermostat settings for normal times
 normal_day_airc = np.concatenate([np.repeat(82, int(8 / delta_t)),
                           np.repeat(79, int(8 / delta_t)), 
                           np.repeat(79, int(8 / delta_t))]); 
+#air conditioner thermostat settings for vacation times
+vacay_day_cool = np.concatenate([np.repeat(88, int(24 / delta_t))]); 
 #rep the daily settings 
 thermostat_heat = np.tile(normal_day_heat, CONST_DAYS); 
 thermostat_airc = np.tile(normal_day_airc, CONST_DAYS); 
+#rep the vacation settings
+vacay_thermo_heat = np.tile(vacay_day_heat, CONST_DAYS); 
+vacay_thermo_cool = np.tile(vacay_day_cool, CONST_DAYS); 
 #how hard the furnace heats
 furnace_rate = 2.0;             # degF/hr
 #how hard the a/c cools
@@ -107,18 +114,18 @@ for i in range(1,len(time_values)):
 
 plt.plot(time_values,T,color="brown",label="inside temp",
     linewidth=2,linestyle="-")
-plt.plot(time_values, outside_temp,color="blue",
+plt.plot(time_values, outside_temp,color="green",
         label="outside temp",linewidth=2,linestyle="-")
 plt.plot(time_values,thermostat_heat,color="red",
         label="thermostat",linewidth=1,linestyle=":")
 plt.plot(time_values,thermostat_airc,color="blue",
         label="thermostat",linewidth=1,linestyle=":")
-plt.plot(time_values,5*heater_on,color="purple",label="heater")
-plt.plot(time_values,10*aircon_on, color="green", label="a/c")
+plt.plot(time_values,5*heater_on,color="red",label="heater")
+plt.plot(time_values,10*aircon_on, color="blue", label="a/c")
 plt.legend()
 plt.show()
 
-print("The heater was on about " + str(heater_on.mean() * 100) +
+print("The heater was on about " + str(np.round(heater_on.mean() * 100, 2)) +
     "% of the day.")
-print("The a/c was on about " + str(aircon_on.mean() * 100) +
+print("The a/c was on about " + str(np.round(aircon_on.mean() * 100, 2)) +
     "% of the day.")
