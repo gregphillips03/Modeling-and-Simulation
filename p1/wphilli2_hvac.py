@@ -4,11 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-'''
-april - H69 / L41
-may   - H77 / L51
-jun   - H85 / L60
-'''
+april_temp_high = 69; 
+april_temp_low = 41; 
+may_temp_high = 77; 
+may_temp_low = 51; 
+jun_temp_high = 85; 
+jun_temp_low = 60; 
 
 april_days = 30; 
 may_days = 31; 
@@ -31,7 +32,7 @@ delta_t = 5/60;
 #0-no of days in 5 minute chunks
 time_values = np.arange(0, 24*CONST_DAYS, delta_t);
 #variable sine wave as outside temperature
-outside_temp = 5*np.sin(2*math.pi/24*time_values) + 30;
+outside_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*time_values) + april_temp_high - ((april_temp_high - april_temp_low)/2);
 #heater thermostat settings for normal times
 normal_day_heat = np.concatenate([np.repeat(68, int(8 / delta_t)),
                           np.repeat(74, int(8 / delta_t)), 
