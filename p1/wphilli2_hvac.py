@@ -4,6 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+'''
+april - H69 / L41
+may   - H77 / L51
+jun   - H85 / L60
+'''
+
 april_days = 30; 
 may_days = 31; 
 june_days = 30;
@@ -13,9 +19,12 @@ june_time_values = np.arange(0, 24*june_days, 5/60);
 
 #no of days to run simulation
 CONST_DAYS = 3; 
-
-heating_cost_rate = .2 #dollar/hr
-ac_cost_rate = .3 #dollar/hr
+#cost per hour to run heat
+#calculated at ((1.06 per therm * 13.8 therm) / day) / 24 hours
+heating_cost_rate = .613 #dollar/hr
+#cost per hour to run air conditioner
+#calculated at 4,320 watts / 1,000 -> 4.32 KW/hr * avg KW/hr of 8.72 for VA
+ac_cost_rate = .376 #dollar/hr
 
 #five minute time chunks
 delta_t = 5/60;
@@ -59,6 +68,10 @@ aircon_on[0] = False;
 T = np.empty(len(time_values));
 #initially 55 degrees in the house
 T[0] = 55;
+#stock vector containing what's been spent on heat
+heat_money = np.empty(len(time_values)); 
+#stock vector containing what's been spent on cooling
+cool_money = np.empty(len(time_values)); 
 #buffer to ensure systems don't rapidly turn on and off
 BUFFER = .5;                 # for hysterisis (degF)
 #simulation loop
@@ -118,16 +131,21 @@ for i in range(1,len(time_values)):
     if heater_on[i]:
         #rate is however much heat the furnace is making, minus what's leaking out
         T_prime = furnace_heat - leakage_rate;
+        #pay for it
+        heat_money[i] = heating_cost_rate * delta_t; 
     #if air is on
     elif aircon_on[i]:
         #rate is however much is cooling, minus what's leaking out/in
         T_prime = aircon_cool - leakage_rate; 
+        #pay for it
+        cool_money[i] = ac_cost_rate * delta_t; 
     #neither system is on
     else:
         #no productionn of heat or air, so it's just the difference
         T_prime = 0 - leakage_rate; 
     #current temp becomes last temp plus the product of our time value and prime
     T[i] = T[i-1] + T_prime * delta_t;
+
 
 
 plt.plot(time_values,T,
@@ -160,7 +178,13 @@ plt.show();
 
 print("The heater was on about " + 
     str(np.round(heater_on.mean() * 100, 2)) +
-    "% of the day.")
+    "% of the day.");
 print("The a/c was on about " + 
     str(np.round(aircon_on.mean() * 100, 2)) +
-    "% of the day.")
+    "% of the day.");
+print("We spent a total of $" +
+	str(np.round(heat_money.sum(), 2)) +
+	" in heating costs."); 
+print("We spent a total of $" +
+	str(np.round(cool_money.sum(), 2)) +
+	" in cooling costs."); 
