@@ -54,6 +54,7 @@ ac_cost_rate = .376 #dollar/hr
 #0-no of days in 5 minute chunks
 time_values = np.arange(0, 24*CONST_DAYS, delta_t);
 
+#smash together all the different temps for the months
 outside_temp = np.concatenate([april_temp, may_temp, june_temp]);  
 
 #heater thermostat settings for normal times
