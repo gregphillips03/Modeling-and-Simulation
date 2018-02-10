@@ -20,6 +20,9 @@ june_days = 30;
 #five minute time chunks
 delta_t = 5/60;
 
+#vacation time frame
+vacay_time = np.arange(8640, 10656, 1); 
+
 april_time_values = np.arange(0, 24*april_days, delta_t); 
 may_time_values = np.arange(0, 24*may_days, delta_t); 
 june_time_values = np.arange(0, 24*june_days, delta_t);
@@ -97,77 +100,78 @@ cool_money = np.empty(len(time_values));
 BUFFER = .5;                 # for hysterisis (degF)
 #simulation loop
 for i in range(1,len(time_values)):
-    mode_heat = thermostat_heat; 
-    mode_airc = thermostat_airc; 
+	if i in vacay_time:
+		thermostat_heat[i-1] = vacay_thermo_heat[i-1]; 
+		thermostat_airc[i-1] = vacay_thermo_cool[i-1]; 
     #if the heater is on
-    if heater_on[i-1]:
+	if heater_on[i-1]:
         #if current temperature - heat setting is greater than buffer
         #82 - 80 > 1
-        if T[i-1] - mode_heat[i-1] > BUFFER:
+		if T[i-1] - thermostat_heat[i-1] > BUFFER:
             #turn off heater
-            heater_on[i] = False;
+			heater_on[i] = False;
             #no more furnace heat
-            furnace_heat = 0;             # degF/hr
+			furnace_heat = 0;             # degF/hr
         #if current temperature - heat setting is not greater than buffer
         #81 - 80 = 1 is not greater 1
-        else:
+		else:
             #keep heater on
-            heater_on[i] = True;
+			heater_on[i] = True;
             #keep pushing out heat
-            furnace_heat = furnace_rate;   # degF/hr
+			furnace_heat = furnace_rate;   # degF/hr
     #if the air conditioner is on
-    elif aircon_on[i-1]:
+	elif aircon_on[i-1]:
         #if current temperature - cooling setting is less than -buffer
         #68 - 70 = -2 < -1
-        if T[i-1] - mode_airc[i-1] < -BUFFER:
+		if T[i-1] - thermostat_airc[i-1] < -BUFFER:
             #turn off a/c
-            aircon_on[i] = False;
+			aircon_on[i] = False;
             #no more cold air
-            aircon_cool = 0;
+			aircon_cool = 0;
         #if current temperature - coolsing setting is not less than -buffer
         # 69 - 70 = -1 is not less than -1
-        else:
+		else:
             #keep a/c on
-            aircon_on[i] = True; 
+			aircon_on[i] = True; 
             #keep pushing out cold air
-            aircon_cool = aircon_rate; 
+			aircon_cool = aircon_rate; 
     #if the heater and air conditioner are not on
-    else:
+	else:
         #if it's just too cold
-        if T[i-1] - mode_heat[i-1] < BUFFER:
-            heater_on[i] = True;
-            furnace_heat = furnace_rate;   # degF/hr
+		if T[i-1] - thermostat_heat[i-1] < BUFFER:
+			heater_on[i] = True;
+			furnace_heat = furnace_rate;   # degF/hr
         #if it's warm enough but not too warm
-        elif T[i-1] - mode_heat[i-1] > BUFFER and T[i-1] < mode_airc[i-1]:
-            heater_on[i] = False;
-            furnace_heat = 0;              # degF/hr
-            aircon_on[i] = False;
-            aircon_cool = 0; 
+		elif T[i-1] - thermostat_heat[i-1] > BUFFER and T[i-1] < thermostat_airc[i-1]:
+			heater_on[i] = False;
+			furnace_heat = 0;              # degF/hr
+			aircon_on[i] = False;
+			aircon_cool = 0; 
         #if it's just too hot
-        elif T[i-1] - mode_airc[i-1] > BUFFER:
-            aircon_on[i] = True; 
-            aircon_cool = aircon_rate; 
+		elif T[i-1] - thermostat_airc[i-1] > BUFFER:
+			aircon_on[i] = True; 
+			aircon_cool = aircon_rate; 
     #difference between the inside temperature of the house and outside temperature
     #multiplied by the leakage factor where lower is better
-    leakage_rate = (house_leakage_factor * (T[i-1] - outside_temp[i-1]));      # degF/hr
+	leakage_rate = (house_leakage_factor * (T[i-1] - outside_temp[i-1]));      # degF/hr
     #if heater is on
-    if heater_on[i]:
+	if heater_on[i]:
         #rate is however much heat the furnace is making, minus what's leaking out
-        T_prime = furnace_heat - leakage_rate;
+		T_prime = furnace_heat - leakage_rate;
         #pay for it
-        heat_money[i] = heating_cost_rate * delta_t; 
+		heat_money[i] = heating_cost_rate * delta_t; 
     #if air is on
-    elif aircon_on[i]:
+	elif aircon_on[i]:
         #rate is however much is cooling, minus what's leaking out/in
-        T_prime = aircon_cool - leakage_rate; 
+		T_prime = aircon_cool - leakage_rate; 
         #pay for it
-        cool_money[i] = ac_cost_rate * delta_t; 
+		cool_money[i] = ac_cost_rate * delta_t; 
     #neither system is on
-    else:
+	else:
         #no productionn of heat or air, so it's just the difference
-        T_prime = 0 - leakage_rate; 
+		T_prime = 0 - leakage_rate; 
     #current temp becomes last temp plus the product of our time value and prime
-    T[i] = T[i-1] + T_prime * delta_t;
+	T[i] = T[i-1] + T_prime * delta_t;
 
 plt.plot(time_values,T,
     color="brown",
