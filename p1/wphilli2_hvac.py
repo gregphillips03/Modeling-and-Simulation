@@ -4,13 +4,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+april_days = 30; 
+may_days = 31; 
+june_days = 30;
+april_time_values = np.arange(0, 24*april_days, 5/60); 
+may_time_values = np.arange(0, 24*may_days, 5/60); 
+june_time_values = np.arange(0, 24*june_days, 5/60); 
+
+#no of days to run simulation
 CONST_DAYS = 3; 
+
+heating_cost_rate = .2 #dollar/hr
+ac_cost_rate = .3 #dollar/hr
+
 #five minute time chunks
 delta_t = 5/60;
-#0-72 in 5 minute chunks
+#0-no of days in 5 minute chunks
 time_values = np.arange(0, 24*CONST_DAYS, delta_t);
 #variable sine wave as outside temperature
-outside_temp = 25*np.sin(2*math.pi/24*time_values) + 20;
+outside_temp = 5*np.sin(2*math.pi/24*time_values) + 30;
 #heater thermostat settings for normal times
 normal_day_heat = np.concatenate([np.repeat(68, int(8 / delta_t)),
                           np.repeat(74, int(8 / delta_t)), 
@@ -48,7 +60,7 @@ T = np.empty(len(time_values));
 #initially 55 degrees in the house
 T[0] = 55;
 #buffer to ensure systems don't rapidly turn on and off
-BUFFER = 1.0;                 # for hysterisis (degF)
+BUFFER = .5;                 # for hysterisis (degF)
 #simulation loop
 for i in range(1,len(time_values)):
     #if the heater is on
@@ -99,33 +111,56 @@ for i in range(1,len(time_values)):
         elif T[i-1] - thermostat_airc[i-1] > BUFFER:
             aircon_on[i] = True; 
             aircon_cool = aircon_rate; 
-
+    #difference between the inside temperature of the house and outside temperature
+    #multiplied by the leakage factor where lower is better
     leakage_rate = (house_leakage_factor * (T[i-1] - outside_temp[i-1]));      # degF/hr
-
+    #if heater is on
     if heater_on[i]:
+        #rate is however much heat the furnace is making, minus what's leaking out
         T_prime = furnace_heat - leakage_rate;
+    #if air is on
     elif aircon_on[i]:
+        #rate is however much is cooling, minus what's leaking out/in
         T_prime = aircon_cool - leakage_rate; 
+    #neither system is on
     else:
+        #no productionn of heat or air, so it's just the difference
         T_prime = 0 - leakage_rate; 
+    #current temp becomes last temp plus the product of our time value and prime
+    T[i] = T[i-1] + T_prime * delta_t;
 
-    T[i] = T[i-1] + T_prime * delta_t
 
+plt.plot(time_values,T,
+    color="brown",
+    label="Inside Temp",
+    linewidth=2,linestyle="-");
+plt.plot(time_values, outside_temp,
+    color="green",
+    label="Outside Temp",
+    linewidth=2,
+    linestyle="-");
+plt.plot(time_values,thermostat_heat,
+    color="red",
+    label="Heat Setting",
+    linewidth=1,
+    linestyle=":");
+plt.plot(time_values,thermostat_airc,
+    color="blue",
+    label="A/C Setting",
+    linewidth=1,
+    linestyle=":");
+plt.plot(time_values,5*heater_on,
+    color="red",
+    label="Heater");
+plt.plot(time_values,10*aircon_on, 
+    color="blue", 
+    label="Aircon");
+plt.legend();
+plt.show();
 
-plt.plot(time_values,T,color="brown",label="inside temp",
-    linewidth=2,linestyle="-")
-plt.plot(time_values, outside_temp,color="green",
-        label="outside temp",linewidth=2,linestyle="-")
-plt.plot(time_values,thermostat_heat,color="red",
-        label="thermostat",linewidth=1,linestyle=":")
-plt.plot(time_values,thermostat_airc,color="blue",
-        label="thermostat",linewidth=1,linestyle=":")
-plt.plot(time_values,5*heater_on,color="red",label="heater")
-plt.plot(time_values,10*aircon_on, color="blue", label="a/c")
-plt.legend()
-plt.show()
-
-print("The heater was on about " + str(np.round(heater_on.mean() * 100, 2)) +
+print("The heater was on about " + 
+    str(np.round(heater_on.mean() * 100, 2)) +
     "% of the day.")
-print("The a/c was on about " + str(np.round(aircon_on.mean() * 100, 2)) +
+print("The a/c was on about " + 
+    str(np.round(aircon_on.mean() * 100, 2)) +
     "% of the day.")
