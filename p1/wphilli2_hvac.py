@@ -32,6 +32,8 @@ delta_t = 5/60;
 #0-no of days in 5 minute chunks
 time_values = np.arange(0, 24*CONST_DAYS, delta_t);
 #variable sine wave as outside temperature
+#temp swing is the halved value of the difference between high and low
+#centered on the high value minus the swing
 outside_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*time_values) + \
  april_temp_high - ((april_temp_high - april_temp_low)/2);
 #heater thermostat settings for normal times
