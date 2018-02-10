@@ -32,7 +32,8 @@ delta_t = 5/60;
 #0-no of days in 5 minute chunks
 time_values = np.arange(0, 24*CONST_DAYS, delta_t);
 #variable sine wave as outside temperature
-outside_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*time_values) + april_temp_high - ((april_temp_high - april_temp_low)/2);
+outside_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*time_values) + \
+ april_temp_high - ((april_temp_high - april_temp_low)/2);
 #heater thermostat settings for normal times
 normal_day_heat = np.concatenate([np.repeat(68, int(8 / delta_t)),
                           np.repeat(74, int(8 / delta_t)), 
@@ -183,9 +184,9 @@ print("The heater was on about " +
 print("The a/c was on about " + 
     str(np.round(aircon_on.mean() * 100, 2)) +
     "% of the day.");
-print("We spent a total of $" +
+print("Simulation generated a total of $" +
 	str(np.round(heat_money.sum(), 2)) +
 	" in heating costs."); 
-print("We spent a total of $" +
+print("Simulation generated a total of $" +
 	str(np.round(cool_money.sum(), 2)) +
 	" in cooling costs."); 
