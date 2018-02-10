@@ -4,22 +4,43 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+#temp ranges from climate.gov
 april_temp_high = 69; 
 april_temp_low = 41; 
 may_temp_high = 77; 
 may_temp_low = 51; 
-jun_temp_high = 85; 
-jun_temp_low = 60; 
+june_temp_high = 100; #changed from 85
+june_temp_low = 60; 
 
+#constants as number of days
 april_days = 30; 
 may_days = 31; 
 june_days = 30;
-april_time_values = np.arange(0, 24*april_days, 5/60); 
-may_time_values = np.arange(0, 24*may_days, 5/60); 
-june_time_values = np.arange(0, 24*june_days, 5/60); 
+
+#five minute time chunks
+delta_t = 5/60;
+
+april_time_values = np.arange(0, 24*april_days, delta_t); 
+may_time_values = np.arange(0, 24*may_days, delta_t); 
+june_time_values = np.arange(0, 24*june_days, delta_t);
+
+#variable sine wave as outside temperature
+#temp swing is the halved value of the difference between high and low
+#centered on the high value minus the swing
+
+#april
+april_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*april_time_values) + \
+ april_temp_high - ((april_temp_high - april_temp_low)/2);
+#may
+may_temp = ((may_temp_high - may_temp_low)/2)*np.sin(2*math.pi/24*may_time_values) + \
+ may_temp_high - ((may_temp_high - may_temp_low)/2); 
+#june
+june_temp = ((june_temp_high - june_temp_low)/2)*np.sin(2*math.pi/24*june_time_values) + \
+ june_temp_high - ((june_temp_high - june_temp_low)/2); 
 
 #no of days to run simulation
-CONST_DAYS = 3; 
+CONST_DAYS = april_days + may_days + june_days; 
+
 #cost per hour to run heat
 #calculated at ((1.06 per therm * 13.8 therm) / day) / 24 hours
 heating_cost_rate = .613 #dollar/hr
@@ -27,15 +48,11 @@ heating_cost_rate = .613 #dollar/hr
 #calculated at 4,320 watts / 1,000 -> 4.32 KW/hr * avg KW/hr of 8.72 for VA
 ac_cost_rate = .376 #dollar/hr
 
-#five minute time chunks
-delta_t = 5/60;
 #0-no of days in 5 minute chunks
 time_values = np.arange(0, 24*CONST_DAYS, delta_t);
-#variable sine wave as outside temperature
-#temp swing is the halved value of the difference between high and low
-#centered on the high value minus the swing
-outside_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*time_values) + \
- april_temp_high - ((april_temp_high - april_temp_low)/2);
+
+outside_temp = np.concatenate([april_temp, may_temp, june_temp]);  
+
 #heater thermostat settings for normal times
 normal_day_heat = np.concatenate([np.repeat(68, int(8 / delta_t)),
                           np.repeat(74, int(8 / delta_t)), 
@@ -80,11 +97,13 @@ cool_money = np.empty(len(time_values));
 BUFFER = .5;                 # for hysterisis (degF)
 #simulation loop
 for i in range(1,len(time_values)):
+    mode_heat = thermostat_heat; 
+    mode_airc = thermostat_airc; 
     #if the heater is on
     if heater_on[i-1]:
         #if current temperature - heat setting is greater than buffer
         #82 - 80 > 1
-        if T[i-1] - thermostat_heat[i-1] > BUFFER:
+        if T[i-1] - mode_heat[i-1] > BUFFER:
             #turn off heater
             heater_on[i] = False;
             #no more furnace heat
@@ -100,7 +119,7 @@ for i in range(1,len(time_values)):
     elif aircon_on[i-1]:
         #if current temperature - cooling setting is less than -buffer
         #68 - 70 = -2 < -1
-        if T[i-1] - thermostat_airc[i-1] < -BUFFER:
+        if T[i-1] - mode_airc[i-1] < -BUFFER:
             #turn off a/c
             aircon_on[i] = False;
             #no more cold air
@@ -115,17 +134,17 @@ for i in range(1,len(time_values)):
     #if the heater and air conditioner are not on
     else:
         #if it's just too cold
-        if T[i-1] - thermostat_heat[i-1] < BUFFER:
+        if T[i-1] - mode_heat[i-1] < BUFFER:
             heater_on[i] = True;
             furnace_heat = furnace_rate;   # degF/hr
         #if it's warm enough but not too warm
-        elif T[i-1] - thermostat_heat[i-1] > BUFFER and T[i-1] < thermostat_airc[i-1]:
+        elif T[i-1] - mode_heat[i-1] > BUFFER and T[i-1] < mode_airc[i-1]:
             heater_on[i] = False;
             furnace_heat = 0;              # degF/hr
             aircon_on[i] = False;
             aircon_cool = 0; 
         #if it's just too hot
-        elif T[i-1] - thermostat_airc[i-1] > BUFFER:
+        elif T[i-1] - mode_airc[i-1] > BUFFER:
             aircon_on[i] = True; 
             aircon_cool = aircon_rate; 
     #difference between the inside temperature of the house and outside temperature
@@ -149,8 +168,6 @@ for i in range(1,len(time_values)):
         T_prime = 0 - leakage_rate; 
     #current temp becomes last temp plus the product of our time value and prime
     T[i] = T[i-1] + T_prime * delta_t;
-
-
 
 plt.plot(time_values,T,
     color="brown",
