@@ -200,6 +200,9 @@ plt.plot(time_values,10*aircon_on,
     color="blue", 
     label="Aircon");
 plt.legend();
+plt.ylabel("Temp degF"); 
+plt.xlabel("Clock Tix in Simulation"); 
+plt.title("3-Month Simulation"); 
 plt.show();
 
 print("The heater was on about " + 
