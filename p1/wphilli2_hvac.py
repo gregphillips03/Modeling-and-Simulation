@@ -4,6 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+#is there a cold snap?
+isFreeze = True; 
+
 #temp ranges from climate.gov
 april_temp_high = 69; 
 april_temp_low = 41; 
@@ -14,32 +17,54 @@ june_temp_low = 60;
 
 #constants as number of days
 april_days = 30; 
+april_days_alt = 23; #for the freeze
 may_days = 31; 
 june_days = 30;
+freeze_days = 7; 
 
 #five minute time chunks
 delta_t = 5/60;
 
 #vacation time frame
 vacay_time = np.arange(8640, 10656, 1); 
+#freezing weather time
+freeze_time = np.arange(0, 4032, 1); 
 
-april_time_values = np.arange(0, 24*april_days, delta_t); 
-may_time_values = np.arange(0, 24*may_days, delta_t); 
-june_time_values = np.arange(0, 24*june_days, delta_t);
+#time values for each month
+if(isFreeze):
+    april_time_values = np.arange(0, 24*april_days, delta_t); 
+    may_time_values = np.arange(0, 24*may_days, delta_t); 
+    june_time_values = np.arange(0, 24*june_days, delta_t);
+else:
+    freeze_time_values = np.arange(0, 24*freeze_days, delta_t); 
+    april_time_values = np.arange(0, 24*april_days_alt, delta_t);
+    may_time_values = np.arange(0, 24*may_days, delta_t); 
+    june_time_values = np.arange(0, 24*june_days, delta_t);
 
 #variable sine wave as outside temperature
 #temp swing is the halved value of the difference between high and low
 #centered on the high value minus the swing
 
-#april
-april_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*april_time_values) + \
- april_temp_high - ((april_temp_high - april_temp_low)/2);
-#may
-may_temp = ((may_temp_high - may_temp_low)/2)*np.sin(2*math.pi/24*may_time_values) + \
- may_temp_high - ((may_temp_high - may_temp_low)/2); 
-#june
-june_temp = ((june_temp_high - june_temp_low)/2)*np.sin(2*math.pi/24*june_time_values) + \
- june_temp_high - ((june_temp_high - june_temp_low)/2); 
+if(isFreeze):
+    #april
+    april_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*april_time_values) + \
+     april_temp_high - ((april_temp_high - april_temp_low)/2);
+    #may
+    may_temp = ((may_temp_high - may_temp_low)/2)*np.sin(2*math.pi/24*may_time_values) + \
+     may_temp_high - ((may_temp_high - may_temp_low)/2); 
+    #june
+    june_temp = ((june_temp_high - june_temp_low)/2)*np.sin(2*math.pi/24*june_time_values) + \
+     june_temp_high - ((june_temp_high - june_temp_low)/2); 
+else:
+    freeze_temp = (np.sin(2*math.pi/24*freeze_time_values) + 11); 
+    april_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*april_time_values) + \
+     april_temp_high - ((april_temp_high - april_temp_low)/2);
+    #may
+    may_temp = ((may_temp_high - may_temp_low)/2)*np.sin(2*math.pi/24*may_time_values) + \
+     may_temp_high - ((may_temp_high - may_temp_low)/2); 
+    #june
+    june_temp = ((june_temp_high - june_temp_low)/2)*np.sin(2*math.pi/24*june_time_values) + \
+     june_temp_high - ((june_temp_high - june_temp_low)/2); 
 
 #no of days to run simulation
 CONST_DAYS = april_days + may_days + june_days; 
@@ -55,7 +80,10 @@ ac_cost_rate = .376 #dollar/hr
 time_values = np.arange(0, 24*CONST_DAYS, delta_t);
 
 #smash together all the different temps for the months
-outside_temp = np.concatenate([april_temp, may_temp, june_temp]);  
+if(isFreeze):
+    outside_temp = np.concatenate([april_temp, may_temp, june_temp]);  
+else:
+    outside_temp = np.concatenate([freeze_temp, april_temp, may_temp, june_temp]); 
 
 #heater thermostat settings for normal times
 normal_day_heat = np.concatenate([np.repeat(68, int(9 / delta_t)),
