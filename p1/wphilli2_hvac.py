@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import math
 
 #is there a cold snap?
-isFreeze = True; 
+isFreeze = False; 
 isDrinkTea = True; #not used yet
 isWearSweater = True; #not used yet
 
