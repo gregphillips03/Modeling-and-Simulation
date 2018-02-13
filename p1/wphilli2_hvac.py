@@ -58,15 +58,15 @@ time_values = np.arange(0, 24*CONST_DAYS, delta_t);
 outside_temp = np.concatenate([april_temp, may_temp, june_temp]);  
 
 #heater thermostat settings for normal times
-normal_day_heat = np.concatenate([np.repeat(68, int(8 / delta_t)),
-                          np.repeat(74, int(8 / delta_t)), 
-                          np.repeat(70, int(8 / delta_t))]); 
+normal_day_heat = np.concatenate([np.repeat(68, int(9 / delta_t)),
+                          np.repeat(74, int(6 / delta_t)), 
+                          np.repeat(70, int(9 / delta_t))]); 
 #heater thermostat settings for vacation times
 vacay_day_heat = np.concatenate([np.repeat(55, int(24 / delta_t))]); 
 #air conditioner thermostat settings for normal times
-normal_day_airc = np.concatenate([np.repeat(82, int(8 / delta_t)),
-                          np.repeat(79, int(8 / delta_t)), 
-                          np.repeat(79, int(8 / delta_t))]); 
+normal_day_airc = np.concatenate([np.repeat(82, int(9 / delta_t)),
+                          np.repeat(79, int(6 / delta_t)), 
+                          np.repeat(79, int(9 / delta_t))]); 
 #air conditioner thermostat settings for vacation times
 vacay_day_cool = np.concatenate([np.repeat(88, int(24 / delta_t))]); 
 #rep the daily settings 
