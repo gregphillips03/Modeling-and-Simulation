@@ -6,6 +6,8 @@ import math
 
 #is there a cold snap?
 isFreeze = True; 
+isDrinkTea = True; #not used yet
+isWearSweater = True; #not used yet
 
 #temp ranges from climate.gov
 april_temp_high = 69; 
