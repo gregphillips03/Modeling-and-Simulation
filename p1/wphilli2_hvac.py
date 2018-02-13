@@ -34,21 +34,23 @@ freeze_time = np.arange(0, 4032, 1);
 
 #time values for each month
 if(isFreeze):
-    april_time_values = np.arange(0, 24*april_days, delta_t); 
-    may_time_values = np.arange(0, 24*may_days, delta_t); 
-    june_time_values = np.arange(0, 24*june_days, delta_t);
-else:
+
     freeze_time_values = np.arange(0, 24*freeze_days, delta_t); 
     april_time_values = np.arange(0, 24*april_days_alt, delta_t);
     may_time_values = np.arange(0, 24*may_days, delta_t); 
     june_time_values = np.arange(0, 24*june_days, delta_t);
+else:
+    april_time_values = np.arange(0, 24*april_days, delta_t); 
+    may_time_values = np.arange(0, 24*may_days, delta_t); 
+    june_time_values = np.arange(0, 24*june_days, delta_t);
+
 
 #variable sine wave as outside temperature
 #temp swing is the halved value of the difference between high and low
 #centered on the high value minus the swing
 
 if(isFreeze):
-    #april
+    freeze_temp = (np.sin(2*math.pi/24*freeze_time_values) + 11); 
     april_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*april_time_values) + \
      april_temp_high - ((april_temp_high - april_temp_low)/2);
     #may
@@ -58,7 +60,7 @@ if(isFreeze):
     june_temp = ((june_temp_high - june_temp_low)/2)*np.sin(2*math.pi/24*june_time_values) + \
      june_temp_high - ((june_temp_high - june_temp_low)/2); 
 else:
-    freeze_temp = (np.sin(2*math.pi/24*freeze_time_values) + 11); 
+    #april
     april_temp = ((april_temp_high - april_temp_low)/2)*np.sin(2*math.pi/24*april_time_values) + \
      april_temp_high - ((april_temp_high - april_temp_low)/2);
     #may
@@ -83,9 +85,9 @@ time_values = np.arange(0, 24*CONST_DAYS, delta_t);
 
 #smash together all the different temps for the months
 if(isFreeze):
-    outside_temp = np.concatenate([april_temp, may_temp, june_temp]);  
+    outside_temp = np.concatenate([freeze_temp, april_temp, may_temp, june_temp]);  
 else:
-    outside_temp = np.concatenate([freeze_temp, april_temp, may_temp, june_temp]); 
+    outside_temp = np.concatenate([april_temp, may_temp, june_temp]); 
 
 #heater thermostat settings for normal times
 normal_day_heat = np.concatenate([np.repeat(68, int(9 / delta_t)),
