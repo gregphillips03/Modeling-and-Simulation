@@ -64,7 +64,6 @@ def p1(freeze, sweater, tea, vacation):
         may_time_values = np.arange(0, 24*may_days, delta_t); 
         june_time_values = np.arange(0, 24*june_days, delta_t);
 
-
     #variable sine wave as outside temperature
     #temp swing is the halved value of the difference between high and low
     #centered on the high value minus the swing
