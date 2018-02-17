@@ -276,28 +276,28 @@ if __name__ == "__main__":
         arg1 = sys.argv[1];
     except IndexError:
         print("Usage: wphilli2_hvac.py <arg1>");
-        print("Please specify (true or false) if there is a cold snap in the first argument");  
+        print("Please specify a string (true or false) if there is a cold snap in the first argument");  
         sys.exit(1);
 
     try:
         arg2 = sys.argv[2];
     except IndexError:
         print("Usage: wphilli2_hvac.py <arg2>");
-        print("Please specify (true or false) if person is wearing sweaters to stay warm");  
+        print("Please specify a string (true or false) if person is wearing sweaters to stay warm");  
         sys.exit(1);
 
     try:
         arg3 = sys.argv[3];
     except IndexError:
         print("Usage: wphilli2_hvac.py <arg3>");
-        print("Please specify (true or false) if person is drinking tea to stay cooler");  
+        print("Please specify a string (true or false) if person is drinking tea to stay cooler");  
         sys.exit(1);
 
     try:
         arg4 = sys.argv[4];
     except IndexError:
         print("Usage: wphilli2_hvac.py <arg4>");
-        print("Please specify (true or false) if person is taking a vacation");  
+        print("Please specify a string (true or false) if person is taking a vacation");  
         sys.exit(1);
 
     # start the program
