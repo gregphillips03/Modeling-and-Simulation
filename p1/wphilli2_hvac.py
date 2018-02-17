@@ -5,17 +5,26 @@ import matplotlib.pyplot as plt;
 import math; 
 import sys; 
 
-def p1(freeze, tea=False, sweater=False):
+def p1(freeze, sweater, tea):
 
     #is there a cold snap?
-    if(freeze == 'False'):
+    if(freeze == 'false'):
         isFreeze = False;
     else:
         isFreeze = True; 
-    #person drinking tea to stay cooler?
-    isDrinkTea = True;
-    #person wearing sweater to stay warmer? 
-    isWearSweater = True;
+    #person wearinga sweater to stay warm?
+    if(sweater == 'false'):
+        atHomeHeat = 74;
+    else: 
+        atHomeHeat = 68 ; 
+    #person drinking tea to stay cooler
+    if(tea == 'false'):
+        atHomeHeat = 74;
+        atHomeCool = 79
+    else: 
+        atHomeHeat = 68; 
+        atHomeCool = 83; 
+
 
     #temp ranges from climate.gov
     april_temp_high = 69; 
@@ -99,13 +108,13 @@ def p1(freeze, tea=False, sweater=False):
 
     #heater thermostat settings for normal times
     normal_day_heat = np.concatenate([np.repeat(68, int(9 / delta_t)),
-                              np.repeat(74, int(6 / delta_t)), 
+                              np.repeat(atHomeHeat, int(6 / delta_t)), 
                               np.repeat(70, int(9 / delta_t))]); 
     #heater thermostat settings for vacation times
     vacay_day_heat = np.concatenate([np.repeat(55, int(24 / delta_t))]); 
     #air conditioner thermostat settings for normal times
     normal_day_airc = np.concatenate([np.repeat(82, int(9 / delta_t)),
-                              np.repeat(79, int(6 / delta_t)), 
+                              np.repeat(atHomeCool, int(6 / delta_t)), 
                               np.repeat(79, int(9 / delta_t))]); 
     #air conditioner thermostat settings for vacation times
     vacay_day_cool = np.concatenate([np.repeat(88, int(24 / delta_t))]); 
@@ -266,5 +275,19 @@ if __name__ == "__main__":
         print("Please specify (true or false) if there is a cold snap in the first argument");  
         sys.exit(1);
 
+    try:
+        arg2 = sys.argv[2];
+    except IndexError:
+        print("Usage: wphilli2_hvac.py <arg2>");
+        print("Please specify (true or false) if person is wearing sweaters to stay warm");  
+        sys.exit(1);
+
+    try:
+        arg3 = sys.argv[3];
+    except IndexError:
+        print("Usage: wphilli2_hvac.py <arg3>");
+        print("Please specify (true or false) if person is drinking tea to stay cooler");  
+        sys.exit(1);
+
     # start the program
-p1(arg1); 
+p1(arg1, arg2, arg3); 
