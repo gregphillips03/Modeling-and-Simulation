@@ -49,7 +49,7 @@ def p1(freeze, sweater, tea, vacation):
     delta_t = 5/60;
 
     #vacation time frame
-    vacay_time = np.arange(8640, 10656, 1); 
+    vacay_time = np.arange(10656, 14688, 1); 
     #freezing weather time
     freeze_time = np.arange(0, 4032, 1); 
 
