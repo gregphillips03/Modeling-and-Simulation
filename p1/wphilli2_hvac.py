@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt;
 import math; 
 import sys; 
 
-def p1(freeze, sweater, tea):
+def p1(freeze, sweater, tea, vacation):
 
     #is there a cold snap?
     if(freeze == 'false'):
@@ -20,11 +20,15 @@ def p1(freeze, sweater, tea):
     #person drinking tea to stay cooler
     if(tea == 'false'):
         atHomeHeat = 74;
-        atHomeCool = 79
+        atHomeCool = 79; 
     else: 
         atHomeHeat = 68; 
         atHomeCool = 83; 
-
+    #person taking a vacation
+    if(vacation == 'false'):
+        takeVacation = False; 
+    else: 
+        takeVacation = True; 
 
     #temp ranges from climate.gov
     april_temp_high = 69; 
@@ -150,7 +154,7 @@ def p1(freeze, sweater, tea):
     BUFFER = .5;                 # for hysterisis (degF)
     #simulation loop
     for i in range(1,len(time_values)):
-    	if i in vacay_time:
+    	if i in vacay_time and takeVacation is True:
     		thermostat_heat[i-1] = vacay_thermo_heat[i-1]; 
     		thermostat_airc[i-1] = vacay_thermo_cool[i-1]; 
         #if the heater is on
@@ -289,5 +293,12 @@ if __name__ == "__main__":
         print("Please specify (true or false) if person is drinking tea to stay cooler");  
         sys.exit(1);
 
+    try:
+        arg4 = sys.argv[4];
+    except IndexError:
+        print("Usage: wphilli2_hvac.py <arg4>");
+        print("Please specify (true or false) if person is taking a vacation");  
+        sys.exit(1);
+
     # start the program
-p1(arg1, arg2, arg3); 
+p1(arg1, arg2, arg3, arg4); 
